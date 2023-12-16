@@ -1,4 +1,3 @@
-console.info('--- INFORMATION --->', 'type defs loaded');
 
 /* 
  * TYPE DEFINITIONS (Schema)
@@ -22,6 +21,9 @@ console.info('--- INFORMATION --->', 'type defs loaded');
  * not only DATABASE actions but also SERVER actions
 */
 
+console.info('--- INFORMATION --->', 'type defs loaded');
+
+
 const typeDefs = `
 type User {
     _id: ID!
@@ -29,16 +31,25 @@ type User {
     email: String!
 }
 
-type Book {
-    _id: ID!
-    author: String!
-    title: String!
-    link: String
+type Query {
+    users_all: [User]
 }
 
-mutation BookCount{
 
-}
 `;
+
+// type Book {
+//     _id: ID!
+//     author: String!
+//     title: String!
+//     link: String
+// }
+
+// mutation BookCount{
+
+// }
+
+console.info('--- INFORMATION --->', 'type defs done');
+
 
 module.exports = typeDefs;
