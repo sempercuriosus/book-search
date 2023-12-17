@@ -4,10 +4,19 @@ console.info('--- INFORMATION --->', 'resolvers loaded');
 
 const resolvers = {
 
+    // USER-CONTROLLER FUNCTIONS NEEDED OVER
+    /*
+      * get single user
+      * create user
+      * login
+      * save book
+      * delete book
+    */
 
     // QUERY START
+
     Query: {
-        users_all: async () => {
+        me: async () => {
             return User.find({});
         },
         //     book_all: async () => {
@@ -16,9 +25,21 @@ const resolvers = {
     },
 
     // MUTATION START
-    // Mutation: {
 
-    // }
+    Mutation: {
+        login: async () => {
+            return 'login';
+        },
+        addUser: async () => {
+            return 'create_us';
+        },
+        saveBook: async () => {
+            return 'save_book';
+        },
+        deleteBook: async () => {
+            return 'delete_book';
+        },
+    }
 
 };
 

@@ -23,31 +23,79 @@
 
 console.info('--- INFORMATION --->', 'type defs loaded');
 
+/*
+  * type
+  * ---
+  * 
+  * - User
+  * - Book
+  * - Auth
+  * 
+  * mutations
+  * ---
+  *
+  * - me -> return User type
+  * - login -> params email and password
+  * - add user -> params username, email, and password 
+  * - save book -> params authors [array], description, bookId, image, and link -> return User type
+  * - - convert this to input 
+  * 
+*/
 
 const typeDefs = `
 type User {
     _id: ID!
     username: String!
     email: String!
+    bookCount: Int
+    savedBooks: [Book]
+
 }
 
+
+type Book {
+    bookId: String!
+    author: [String!]
+    description: String!
+    title: String!
+    image: String
+    link: String
+}
+
+
+type Auth{
+    token: String
+    user: User
+}
+
+
 type Query {
-    users_all: [User]
+    me: User
+}
+
+
+type Mutation {
+    login: Auth
+}
+
+
+type Mutation {
+    addUser: User
+} 
+
+
+type Mutation {
+    saveBook: User
+}
+
+
+type Mutation {
+    deleteBook: User
 }
 
 
 `;
 
-// type Book {
-//     _id: ID!
-//     author: String!
-//     title: String!
-//     link: String
-// }
-
-// mutation BookCount{
-
-// }
 
 console.info('--- INFORMATION --->', 'type defs done');
 
