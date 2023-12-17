@@ -1,6 +1,5 @@
-const { JsonWebTokenError } = require('jsonwebtoken');
 const { User, Book } = require('../models');
-const { signToken } = require('../utils/auth');
+const { signToken, AuthenticationError } = require('../utils/auth');
 
 const resolvers = {
   // USER-CONTROLLER FUNCTIONS NEEDED OVER
@@ -11,13 +10,6 @@ const resolvers = {
    * save book
    * delete book
    */
-
-  // TEST GUY
-  // {
-  //   "username": "testUser",
-  //   "email": "u@t.com",
-  //   "password": "test1"
-  // }
 
   // QUERY START
 
@@ -33,11 +25,11 @@ const resolvers = {
 
         // Search by USERNAME, default
         // the search is case-INsensitive
-        let query = { username: new RegExp(username, 'i') };
+        let query = { username: username };
 
         // Search by EMAIL
         if (!username) {
-          query = { email: new RegExp(email, 'i') };
+          query = { email: email };
         }
 
         console.log(query);
@@ -66,13 +58,40 @@ const resolvers = {
   // MUTATION START
 
   Mutation: {
+    login: async (parent, { email, password }) => {
+      const userLogin = await User.findOne({ email: email });
+
+      if (!userLogin) {
+        throw new Error('Error Loggin In. 1');
+      }
+
+      console.log('USER LOGIN', userLogin);
+
+      // isCorrectPassword is a user-defined method made in the model for this process
+      const userPassword = await userLogin.isCorrectPassword(password.trim());
+
+      // {
+      //   "username": "TEST",
+      //   "email": "test@test.com",
+      //   "password": "test"
+      // }
+
+      if (!userPassword) {
+        throw Error('Error Logging In. 2');
+      }
+
+      // created token
+      const token = signToken(userLogin);
+
+      return { token, userLogin };
+    },
     //
     addUser: async (parent, { username, email, password }, context) => {
       try {
         // usernames and passwords are case-INsensitive
         const userCreated = await User.create({
-          username: new RegExp(username, 'i'),
-          email: new RegExp(email, 'i'),
+          username: username,
+          email: email,
           password,
         });
 
@@ -86,32 +105,7 @@ const resolvers = {
         throw Error('There was an error in creating the new user.');
       }
     },
-    // login is case-INsensitive
-    login: async (parent, { username, email, password }) => {
-      const userLogin = await User.findOne({
-        $or: [{ username: new RegExp(username, 'i') }, { email: email }],
-      });
 
-      if (!userLogin) {
-        throw new Error('Error Loggin In.');
-      }
-
-      // isCorrectPassword is a user-defined method made in the model for this process
-      const userPassword = await userLogin.isCorrectPassword(password);
-
-      if (!userPassword) {
-        throw Error('Error Logging In.');
-      }
-
-      if (!userPassword) {
-        throw new Error('Error');
-      }
-
-      // created token
-      const token = signToken(userLogin);
-
-      return { token, userLogin };
-    },
     // Save book required all of title, author, and description
     saveBook: async (parent, { book }, context) => {
       // Is the user logged in? If not, cannot save.
