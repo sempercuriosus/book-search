@@ -70,29 +70,16 @@ type Auth{
 
 
 type Query {
-    me: User
+    me(username: String, email: String): User
 }
 
 
 type Mutation {
     addUser(username: String!, email: String!, password: String!): Auth
-} 
-
-
-type Mutation {
-    login: Auth
+    login(username: String, email: String, password: String!): Auth
+    saveBook: Book
+    deleteBook: Book
 }
-
-
-type Mutation {
-    saveBook: User
-}
-
-
-type Mutation {
-    deleteBook: User
-}
-
 
 `;
 
