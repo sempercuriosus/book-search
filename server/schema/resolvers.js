@@ -2,105 +2,147 @@ const { JsonWebTokenError } = require('jsonwebtoken');
 const { User, Book } = require('../models');
 const { signToken } = require('../utils/auth');
 
-console.info('--- INFORMATION --->', 'resolvers loaded');
-
 const resolvers = {
+  // USER-CONTROLLER FUNCTIONS NEEDED OVER
+  /*
+   * get single user
+   * create user
+   * login
+   * save book
+   * delete book
+   */
 
-    // USER-CONTROLLER FUNCTIONS NEEDED OVER
-    /*
-      * get single user
-      * create user
-      * login
-      * save book
-      * delete book
-    */
+  // QUERY START
 
-    // QUERY START
+  Query: {
+    // only need the username OR email to search by. the default is the username, but if that is not found email is used.
+    me: async (parent, { username, email }) => {
+      console.log('username', username, 'email', email);
 
-    Query: {
-        me: async (parent, { username, email }) => {
+      try {
+        if (!username && !email) {
+          throw Error('Cannot Create Serarch. No Values Passed In');
+        }
 
-            console.log('username', username, 'email', email);
+        // Search by USERNAME, default
+        // the search is case-INsensitive
+        let query = { username: new RegExp(username, 'i') };
 
-            try {
+        // Search by EMAIL
+        if (!username) {
+          query = { email: new RegExp(email, 'i') };
+        }
 
-                if (!username && !email) {
-                    throw Error('Cannot Create Serarch. No Values Passed In');
-                }
+        console.log(query);
 
-                // Search by USERNAME, default
-                let query = { username: username };
+        const user = await User.findOne(query);
 
-                // Search by EMAIL
-                if (!username) {
-                    query = { email: email };
-                }
+        if (!user) {
+          throw Error('Error When Locating User');
+        }
 
-                const user = await User.findOne(query);
+        console.log(user);
 
-                if (!user) {
-                    throw Error('Error When Locating User');
-                }
+        // console.log(user, user.email, user.username);
 
-                console.log(user);
-
-                // console.log(user, user.email, user.username);
-
-                return user;
-            }
-            catch (error) {
-                console.error(error);
-                throw error;
-            }
-
-        },
-        //     book_all: async () => {
-        //         return Book.find({});
-        //     }
+        return user;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
     },
+    //     book_all: async () => {
+    //         return Book.find({});
+    //     }
+  },
 
-    // MUTATION START
+  // MUTATION START
 
-    Mutation: {
-        addUser: async (parent, { username, email, password }, context) => {
-            try {
-                const userCreated = await User.create({ username, email, password });
+  Mutation: {
+    //
+    addUser: async (parent, { username, email, password }, context) => {
+      try {
+        // usernames and passwords are case-INsensitive
+        const userCreated = await User.create({
+          username: new RegExp(username, 'i'),
+          username: new RegExp(email, 'i'),
+          password,
+        });
 
-                const token = signToken(userCreated);
+        const token = signToken(userCreated);
 
-                console.log(userCreated);
+        console.log(userCreated);
 
-                return { token, userCreated };
-            }
-            catch (error) {
-                console.error('-- ERROR ->', error);
-            }
-        },
-        login: async ({ username, email }) => {
+        return { token, userCreated };
+      } catch (error) {
+        console.error('-- ERROR ->', error);
+        throw Error('There was an error in creating the new user.');
+      }
+    },
+    // login is case-INsensitive
+    login: async (parent, { username, email, password }) => {
+      const userLogin = await User.findOne({
+        $or: [{ username: new RegExp(username, 'i') }, { email: email }],
+      });
 
-            const userLogin = await User.findOne({ $or: [ { "username": username }, { "email": email } ] });
+      if (!userLogin) {
+        throw new Error('Error Loggin In.');
+      }
 
-            if (!userLogin) {
-                throw new Error('Error');
-            }
+      // isCorrectPassword is a user-defined method made in the model for this process
+      const userPassword = await userLogin.isCorrectPassword(password);
 
-            const userPassword = await userLogin(password);
+      if (!userPassword) {
+        throw Error('Error Logging In.');
+      }
 
-            if (!userPassword) {
-                throw new Error('Error');
-            }
+      if (!userPassword) {
+        throw new Error('Error');
+      }
 
-        },
-        saveBook: async () => {
-            return 'save_book';
-        },
-        deleteBook: async () => {
-            return 'delete_book';
-        },
-    }
+      // created token
+      const token = signToken(userLogin);
 
+      return { token, userLogin };
+    },
+    // Save book required all of title, author, and description
+    saveBook: async (parent, { book }, context) => {
+      // Is the user logged in? If not, cannot save.
+      if (!context.user) {
+        throw new Error('Cannot Save Book. User Not Logged In.');
+      }
+
+      if (!title || !authors || !description) {
+        throw new Error('Cannot Save Book. No Values Past.');
+      }
+
+      const bookSaved = {
+        book,
+      };
+
+      try {
+        const updatedUserList = await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $addToSet: { savedBooks: bookSaved } },
+          // new dictates that we are getting the MOST RECENT result-set, otherwise this would lag by one update each time.
+          { new: true, runValidators: true },
+        );
+
+        return updatedUserList;
+      } catch (error) {
+        console.error(error);
+        throw Error('ERROR SAVING THE BOOK');
+      }
+      return bookSaved;
+    },
+    //
+    deleteBook: async () => {
+      return 'delete_book';
+    },
+  },
 };
 
-console.info('--- INFORMATION --->', 'resolvers done');
+console.info('resolvers loaded');
 
 module.exports = resolvers;
+
