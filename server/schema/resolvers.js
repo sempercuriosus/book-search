@@ -16,8 +16,6 @@ const resolvers = {
   Query: {
     // only need the username OR email to search by. the default is the username, but if that is not found email is used.
     me: async (parent, { username, email }) => {
-      console.log('username', username, 'email', email);
-
       try {
         if (!username && !email) {
           throw Error('Cannot Create Serarch. No Values Passed In');
@@ -32,8 +30,6 @@ const resolvers = {
           query = { email: email };
         }
 
-        console.log(query);
-
         const user = await User.findOne(query);
 
         if (!user) {
@@ -41,8 +37,6 @@ const resolvers = {
         }
 
         console.log(user);
-
-        // console.log(user, user.email, user.username);
 
         return user;
       } catch (error) {
@@ -64,8 +58,6 @@ const resolvers = {
       if (!userLogin) {
         throw new Error('Error Loggin In. 1');
       }
-
-      console.log('USER LOGIN', userLogin);
 
       // isCorrectPassword is a user-defined method made in the model for this process
       const userPassword = await userLogin.isCorrectPassword(password.trim());
@@ -96,8 +88,6 @@ const resolvers = {
         });
 
         const token = signToken(userCreated);
-
-        console.log(userCreated);
 
         return { token, userCreated };
       } catch (error) {
