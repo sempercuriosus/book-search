@@ -75,13 +75,13 @@ type Query {
 
 
 type Mutation {
-    login: Auth
-}
+    addUser(username: String!, email: String!, password: String!): Auth
+} 
 
 
 type Mutation {
-    addUser: User
-} 
+    login: Auth
+}
 
 
 type Mutation {

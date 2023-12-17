@@ -32,12 +32,12 @@ const db = require('./config/connection');
 // discontinued
 // const routes = require('./routes');
 
+const PORT = process.env.PORT || 3001;
 
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
 const { typeDefs, resolvers } = require('./schema');
 
-const PORT = process.env.PORT || 3001;
 
 const server = new ApolloServer({
   typeDefs
@@ -66,9 +66,10 @@ const startApolloServer = async () => {
   app.use('/graphql', expressMiddleware(server));
 
   db.once('open', () => {
-    app.listen(PORT, () => console.log(`🌍 Now listening on localhost:${PORT}`));
+    app.listen(PORT);
+    console.log(`🌍 Now listening on localhost:${PORT}`);
+    console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
   });
-
 };
 
 startApolloServer();

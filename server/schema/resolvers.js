@@ -1,4 +1,5 @@
 const { User, Book } = require('../models');
+const { signToken } = require('../utils/auth');
 
 console.info('--- INFORMATION --->', 'resolvers loaded');
 
@@ -27,11 +28,22 @@ const resolvers = {
     // MUTATION START
 
     Mutation: {
+        addUser: async (parent, { username, email, password }, context) => {
+            try {
+                const userCreated = await User.create({ username, email, password });
+
+                const token = signToken(userCreated);
+
+                console.log(userCreated);
+
+                return { token, userCreated };
+            }
+            catch (error) {
+                console.error('-- ERROR ->', error);
+            }
+        },
         login: async () => {
             return 'login';
-        },
-        addUser: async () => {
-            return 'create_us';
         },
         saveBook: async () => {
             return 'save_book';
