@@ -12,6 +12,13 @@ const resolvers = {
    * delete book
    */
 
+  // TEST GUY
+  // {
+  //   "username": "testUser",
+  //   "email": "u@t.com",
+  //   "password": "test1"
+  // }
+
   // QUERY START
 
   Query: {
@@ -65,7 +72,7 @@ const resolvers = {
         // usernames and passwords are case-INsensitive
         const userCreated = await User.create({
           username: new RegExp(username, 'i'),
-          username: new RegExp(email, 'i'),
+          email: new RegExp(email, 'i'),
           password,
         });
 
@@ -112,7 +119,7 @@ const resolvers = {
         throw new Error('Cannot Save Book. User Not Logged In.');
       }
 
-      if (!title || !authors || !description) {
+      if (!book.title || !book.authors || !book.description) {
         throw new Error('Cannot Save Book. No Values Past.');
       }
 
