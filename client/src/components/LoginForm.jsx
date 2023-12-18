@@ -2,8 +2,6 @@
 import { useState, useEffect } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 
-// This is depreciated
-// import { loginUser } from '../utils/API.js';
 import { useMutation } from '@apollo/client';
 import { LOGIN_USER } from '../utils/mutations';
 
@@ -43,12 +41,9 @@ const LoginForm = () => {
     }
 
     try {
-      // this is failing....
       const { data } = await login({
         variables: { ...userFormData },
       });
-
-      console.log(data, data.login.token);
 
       Auth.login(data.login.token);
     } catch (err) {

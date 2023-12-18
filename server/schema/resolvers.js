@@ -56,20 +56,14 @@ const resolvers = {
       const userLogin = await User.findOne({ email: email });
 
       if (!userLogin) {
-        throw new Error('Error Loggin In. 1');
+        throw new Error('Error Loggin In.');
       }
 
       // isCorrectPassword is a user-defined method made in the model for this process
       const userPassword = await userLogin.isCorrectPassword(password.trim());
 
-      // {
-      //   "username": "TEST",
-      //   "email": "test@test.com",
-      //   "password": "test"
-      // }
-
       if (!userPassword) {
-        throw Error('Error Logging In. 2');
+        throw Error('Error Logging In.');
       }
 
       // created token
