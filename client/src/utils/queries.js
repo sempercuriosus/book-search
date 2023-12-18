@@ -1,5 +1,5 @@
 // Importing the apollo client
-import { gql } from '@apollo/clinet';
+import { gql } from '@apollo/client';
 
 // EXPORT QUERY
 export const GET_ME = gql`
