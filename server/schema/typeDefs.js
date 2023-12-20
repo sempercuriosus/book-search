@@ -40,13 +40,13 @@
  */
 
 const typeDefs = `
-type User {
+  type User {
     _id: ID!
     username: String!
-    email: String!
+    email: String
     bookCount: Int
     savedBooks: [Book]
-}
+  }
 
 
 type Book {
@@ -71,7 +71,7 @@ description: String!
 }
 
 type Query {
-    me(username: String, email: String): User
+    me: User
 }
 
 type Mutation {

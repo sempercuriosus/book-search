@@ -14,39 +14,38 @@ const resolvers = {
   // QUERY START
 
   Query: {
-    // only need the username OR email to search by. the default is the username, but if that is not found email is used.
-    me: async (parent, { username, email }) => {
+    me: async (parent, args, context) => {
+      // console.log('CONTEXT SET IS >', context);
+      console.log(context.user);
+
       try {
-        if (!username && !email) {
-          throw Error('Cannot Create Serarch. No Values Passed In');
+        // check the context is set such that the query does not need any params included with it.
+
+        if (context.user == undefined) {
+          console.log('User context was not set.');
+          return {};
         }
 
-        // Search by USERNAME, default
-        // the search is case-INsensitive
-        let query = { username: username };
+        const userId = context.user ? context.user._id : '';
 
-        // Search by EMAIL
-        if (!username) {
-          query = { email: email };
+        if (userId) {
+          // Search by ID, default
+
+          let query = { _id: userId };
+
+          const user = await User.findOne(query);
+
+          if (!user) {
+            throw new Error('Error When Locating User');
+          }
+
+          return user;
         }
-
-        const user = await User.findOne(query);
-
-        if (!user) {
-          throw Error('Error When Locating User');
-        }
-
-        console.log(user);
-
-        return user;
       } catch (error) {
         console.error(error);
         throw error;
       }
     },
-    //     book_all: async () => {
-    //         return Book.find({});
-    //     }
   },
 
   // MUTATION START
@@ -118,7 +117,6 @@ const resolvers = {
         console.error(error);
         throw Error('ERROR SAVING THE BOOK');
       }
-      return bookSaved;
     },
     //
     deleteBook: async () => {
