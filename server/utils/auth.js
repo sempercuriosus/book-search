@@ -21,8 +21,6 @@ module.exports = {
 
     token = token.substring(spaceIndex).trim();
 
-    console.log(token);
-
     if (!token) {
       return 'Token Not Set';
     }
