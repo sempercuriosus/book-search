@@ -37,6 +37,8 @@ const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
 const { typeDefs, resolvers } = require('./schema');
 
+const { authMiddleware } = require('./utils/auth');
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
@@ -65,7 +67,8 @@ const startApolloServer = async () => {
 
   // app will now use graphql as the router
   // setting up an endpoint and passing the server, server, as an argument
-  app.use('/graphql', expressMiddleware(server));
+  // ALSO NEED THE CONTEXT
+  app.use('/graphql', expressMiddleware(server, { context: authMiddleware }));
 
   db.once('open', () => {
     app.listen(PORT);
