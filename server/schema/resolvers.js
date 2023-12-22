@@ -90,40 +90,29 @@ const resolvers = {
     },
 
     // Save book required all of title, author, and description
-    saveBook: async (parent, { book }, context) => {
+    saveBook: async (parent, { savedBooks }, context) => {
       // Is the user logged in? If not, cannot save.
 
       if (!context.user) {
         throw new Error('Cannot Save Book. User Not Logged In.');
       }
 
-      if (!book.title || !book.authors) {
-        // console.log(
-        //   'book.title',
-        //   book.title,
-        //   'book.authors',
-        //   book.authors,
-        //   'book.description',
-        //   book.description,
-        // );
+      if (
+        !savedBooks.title ||
+        !savedBooks.authors.length ||
+        !savedBooks.description
+      ) {
         throw new Error('Cannot Save Book. No Values Past.');
       }
-
-      const bookSaved = {
-        book,
-      };
 
       try {
         const updatedUserList = await User.findOneAndUpdate(
           { _id: context.user._id },
-          // on the client the mutations variable name did match from SearchBook.jsx to mutations.js BUT not from mutations.js to resolvers.js on the server.
-          // The Client Variables need to match the Mutation variables, need to match the Mutation variables. which when put like that makes sense.
-          { $addToSet: { book: bookSaved } },
+          { $addToSet: { savedBooks: savedBooks } },
           // new dictates that we are getting the MOST RECENT result-set, otherwise this would lag by one update each time.
           { new: true, runValidators: true },
         );
 
-        console.info('Updated Book List');
         return updatedUserList;
       } catch (error) {
         console.error(error);
