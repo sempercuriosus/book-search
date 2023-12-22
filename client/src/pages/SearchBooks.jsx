@@ -6,13 +6,14 @@ import { useMutation } from '@apollo/client';
 import { SAVE_BOOK } from '../utils/mutations';
 
 import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
-import { canonicalStringify } from '@apollo/client/cache';
 
 const SearchBooks = () => {
   // create state for holding returned google api data
   const [searchedBooks, setSearchedBooks] = useState([]);
   // create state for holding our search field data
   const [searchInput, setSearchInput] = useState('');
+  // Using a mutation to save for the books
+  const [saveBook, { error }] = useMutation(SAVE_BOOK);
 
   // create state to hold saved bookId values
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
@@ -30,14 +31,6 @@ const SearchBooks = () => {
     return () => saveBookIds(savedBookIds);
   });
 
-  //
-  //
-  //
-  //
-  // this needs updating
-  //
-  //
-  //
   // create method to search for books and set state on form submit
   const handleFormSubmit = async (event) => {
     event.preventDefault();
@@ -59,8 +52,6 @@ const SearchBooks = () => {
       const { items } = await response.json();
       // const booksFound = await response.json();
 
-      console.log(items);
-
       const bookData = items.map((book) => ({
         bookId: book.id,
         authors: book.volumeInfo.authors || ['No author to display'],
@@ -70,8 +61,8 @@ const SearchBooks = () => {
       }));
 
       setSearchedBooks(bookData);
-      //
-      // setSearchInput('');
+
+      setSearchInput('');
     } catch (err) {
       console.error(err);
     }
@@ -89,23 +80,26 @@ const SearchBooks = () => {
       return false;
     }
 
-    try {
-      //
-      //
-      //
-      //
-      // this needs updating
-      //
-      //
-      //
-      const response = await saveBook(bookToSave, token);
+    // catching null values
+    const book = {
+      bookId: bookToSave.bookId || '',
+      authors: bookToSave.authors || [],
+      description: bookToSave.description || '',
+      title: bookToSave.title || '',
+    };
 
-      if (!response.ok) {
+    try {
+      const { data } = await saveBook({
+        variables: { savedBooks: book },
+      });
+
+      if (error || data.error) {
+        const writeError = error || data.error;
+        console.error(writeError);
         throw new Error('something went wrong!');
       }
-
       // if book successfully saves to user's account, save book id to state
-      setSavedBookIds([...savedBookIds, bookToSave.bookId]);
+      setSavedBookIds([...savedBookIds, book.bookId]);
     } catch (err) {
       console.error(err);
     }
@@ -181,6 +175,12 @@ const SearchBooks = () => {
                         )
                           ? 'This book has already been saved!'
                           : 'Save this Book!'}
+                      </Button>
+                    )}
+                    {/* Added a Button to Show Logging In To Save */}
+                    {!Auth.loggedIn() && (
+                      <Button className='btn-block btn-info'>
+                        Log In To Save
                       </Button>
                     )}
                   </Card.Body>
