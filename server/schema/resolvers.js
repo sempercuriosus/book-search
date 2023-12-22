@@ -15,14 +15,11 @@ const resolvers = {
 
   Query: {
     me: async (parent, args, context) => {
-      // console.log('CONTEXT SET IS >', context);
-      console.log(context.user);
-
       try {
         // check the context is set such that the query does not need any params included with it.
 
         if (context.user == undefined) {
-          console.log('User context was not set.');
+          console.error('User context was not set.');
           return {};
         }
 

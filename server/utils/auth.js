@@ -14,7 +14,6 @@ module.exports = {
   }),
   authMiddleware: ({ req }) => {
     // req has a headers section, which has an authorization to it, using that.
-    // console.log(req.headers);
     let token = req.headers.authorization;
 
     const spaceIndex = token.indexOf(' ');
