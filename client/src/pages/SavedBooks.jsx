@@ -11,7 +11,8 @@ import { Fragment } from 'react';
 
 const SavedBooks = () => {
   // use query has 'loading' as a flag to indicate if the process is done
-  const { data, loading, error } = useQuery(GET_ME);
+  const { data, loading, error, refetch } = useQuery(GET_ME);
+  const [deleteBook] = useMutation(REMOVE_BOOK);
 
   const userData = data?.me || {};
 
@@ -36,16 +37,20 @@ const SavedBooks = () => {
     }
 
     try {
-      const response = await REMOVE_BOOK(bookId, token);
+      console.log(bookId);
 
-      if (!response.ok) {
+      const { data } = await deleteBook({
+        variables: { bookId },
+      });
+
+      if (data.error) {
         throw new Error('something went wrong!');
       }
 
-      // const updatedUser = await response.json();
-      // setUserData(updatedUser);
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
+
+      refetch();
     } catch (err) {
       console.error(err);
     }

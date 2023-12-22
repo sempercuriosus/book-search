@@ -121,8 +121,20 @@ const resolvers = {
       }
     },
     //
-    deleteBook: async () => {
-      return 'delete_book';
+    deleteBook: async (parent, { bookId }, context) => {
+      console.info('delete_book : ' + bookId);
+
+      try {
+        const bookToRemove = await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $pull: { savedBooks: { bookId } } },
+          { new: true, runValidators: true },
+        );
+
+        console.log(bookId, 'book has been removed.');
+      } catch (error) {
+        console.error(error);
+      }
     },
   },
 };
