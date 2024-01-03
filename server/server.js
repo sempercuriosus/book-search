@@ -52,6 +52,11 @@ const startApolloServer = async () => {
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
 
+  // app will now use graphql as the router
+  // setting up an endpoint and passing the server, server, as an argument
+  // ALSO NEED THE CONTEXT
+  app.use('/graphql', expressMiddleware(server, { context: authMiddleware }));
+
   // if we're in production, serve client/build as static assets
   if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../client/dist')));
@@ -64,11 +69,6 @@ const startApolloServer = async () => {
 
   // in updating the code base, this has been discontinued
   // app.use(routes);
-
-  // app will now use graphql as the router
-  // setting up an endpoint and passing the server, server, as an argument
-  // ALSO NEED THE CONTEXT
-  app.use('/graphql', expressMiddleware(server, { context: authMiddleware }));
 
   db.once('open', () => {
     app.listen(PORT);
