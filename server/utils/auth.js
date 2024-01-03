@@ -16,13 +16,13 @@ module.exports = {
     // req has a headers section, which has an authorization to it, using that.
     let token = req.headers.authorization;
 
+    if (!token) {
+      return req;
+    }
+
     const spaceIndex = token.indexOf(' ');
 
     token = token.substring(spaceIndex).trim();
-
-    if (!token) {
-      return 'Token Not Set';
-    }
 
     try {
       // ASSIGNING THE REQUEST USER CONTEXT FOR SERVER USE
