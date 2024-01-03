@@ -79,7 +79,7 @@ const resolvers = {
 
         const token = signToken(userCreated);
 
-        return { token, userCreated };
+        return { token: token, user: userCreated };
       } catch (error) {
         console.error('-- ERROR ->', error);
         throw Error('There was an error in creating the new user.');
