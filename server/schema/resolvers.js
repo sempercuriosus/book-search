@@ -65,7 +65,7 @@ const resolvers = {
       // created token
       const token = signToken(userLogin);
 
-      return { token, userLogin };
+      return { token: token, user: userLogin };
     },
     //
     addUser: async (parent, { username, email, password }, context) => {
